@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Auth } from "firebase-admin/auth"
+import { AuthProvider } from "@/context/AuthContext"
 
 export default function HomePage() {
   const [selectedInsurance, setSelectedInsurance] = useState("")
@@ -39,7 +40,8 @@ export default function HomePage() {
   ]
 
   return (
-  
+  <AuthProvider>
+    
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Header */}
      
@@ -141,5 +143,6 @@ export default function HomePage() {
 
    
     </div>
+    </AuthProvider>
   )
 }
