@@ -246,7 +246,7 @@ export default function OfflinePage() {
                               Retry
                             </Button>
                           )}
-                          <Button variant="ghost" size="sm" onClick={() => deleteAction(action.id)}>
+                          <Button variant="outline" size="sm" onClick={() => deleteAction(action.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

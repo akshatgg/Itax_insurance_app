@@ -3,7 +3,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordian"
 import { Badge } from "@/components/ui/badge"
 import { Shield, Leaf, ArrowRight, CheckCircle, Users, Heart, Building } from "lucide-react"
 
@@ -23,11 +23,11 @@ export default function HealthInsurancePage() {
               Comprehensive health coverage that prioritizes your wellbeing and the planet's health.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" className="bg-white text-teal-700 hover:bg-teal-50">
-                <Link href="/quote?type=health">Get a Quote</Link>
+              <Button size="lg" className="bg-white text-teal-700 hover:bg-teal-50">
+                <Link href="/quote?type=health" className="w-full h-full flex items-center justify-center">Get a Quote</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
-                <Link href="/compare?category=health">Compare Plans</Link>
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                <Link href="/compare?category=health" className="w-full h-full flex items-center justify-center">Compare Plans</Link>
               </Button>
             </div>
           </div>
@@ -111,8 +111,8 @@ export default function HealthInsurancePage() {
                 <div className="text-2xl font-bold text-teal-600">
                   From $199<span className="text-sm font-normal text-gray-500">/month</span>
                 </div>
-                <Button asChild className="bg-teal-600 hover:bg-teal-700">
-                  <Link href="/quote?type=health&plan=individual">
+                <Button className="bg-teal-600 hover:bg-teal-700">
+                  <Link href="/quote?type=health&plan=individual" className="flex items-center">
                     Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -174,8 +174,8 @@ export default function HealthInsurancePage() {
                 <div className="text-2xl font-bold text-teal-600">
                   From $399<span className="text-sm font-normal text-gray-500">/month</span>
                 </div>
-                <Button asChild className="bg-teal-600 hover:bg-teal-700">
-                  <Link href="/quote?type=health&plan=family">
+                <Button className="bg-teal-600 hover:bg-teal-700">
+                  <Link href="/quote?type=health&plan=family" className="flex items-center">
                     Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -231,7 +231,7 @@ export default function HealthInsurancePage() {
                 <div className="text-2xl font-bold text-teal-600">
                   Custom<span className="text-sm font-normal text-gray-500"> pricing</span>
                 </div>
-                <Button asChild className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-teal-600 hover:bg-teal-700">
                   <Link href="/quote?type=health&plan=business">
                     Request a Quote <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>

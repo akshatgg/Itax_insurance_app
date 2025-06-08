@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { Auth } from "firebase-admin/auth"
 
 export default function HomePage() {
   const [selectedInsurance, setSelectedInsurance] = useState("")
-
+ 
   const insuranceTypes = [
     {
       id: "health",
@@ -38,6 +39,7 @@ export default function HomePage() {
   ]
 
   return (
+  
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Header */}
      

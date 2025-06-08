@@ -116,7 +116,7 @@ export function ChatInterface() {
               </div>
             </div>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => setIsOpen(false)}
               className="text-white hover:bg-teal-700 h-8 w-8"
@@ -125,59 +125,61 @@ export function ChatInterface() {
             </Button>
           </CardHeader>
 
-          <CardContent ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn("flex gap-3 max-w-[90%]", message.role === "user" ? "ml-auto flex-row-reverse" : "")}
-              >
-                {message.role === "assistant" && (
+          <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={chatContainerRef} className="flex-1 flex flex-col space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={cn("flex gap-3 max-w-[90%]", message.role === "user" ? "ml-auto flex-row-reverse" : "")}
+                >
+                  {message.role === "assistant" && (
+                    <Avatar className="h-8 w-8 mt-1">
+                      <AvatarImage src="/support-agent.png" alt="AI Assistant" />
+                      <AvatarFallback className="bg-teal-100 text-teal-700">AI</AvatarFallback>
+                    </Avatar>
+                  )}
+
+                  <div
+                    className={cn(
+                      "rounded-lg p-3",
+                      message.role === "user" ? "bg-teal-600 text-white rounded-tr-none" : "bg-gray-100 rounded-tl-none",
+                    )}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  </div>
+
+                  {message.role === "user" && (
+                    <Avatar className="h-8 w-8 mt-1">
+                      <AvatarFallback className="bg-blue-600 text-white">
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-3 max-w-[90%]">
                   <Avatar className="h-8 w-8 mt-1">
                     <AvatarImage src="/support-agent.png" alt="AI Assistant" />
                     <AvatarFallback className="bg-teal-100 text-teal-700">AI</AvatarFallback>
                   </Avatar>
-                )}
-
-                <div
-                  className={cn(
-                    "rounded-lg p-3",
-                    message.role === "user" ? "bg-teal-600 text-white rounded-tr-none" : "bg-gray-100 rounded-tl-none",
-                  )}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <div className="bg-gray-100 rounded-lg rounded-tl-none p-4 flex gap-2 items-center">
+                    <div className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" />
+                    <div className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: "0.2s" }} />
+                    <div className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: "0.4s" }} />
+                  </div>
                 </div>
+              )}
 
-                {message.role === "user" && (
-                  <Avatar className="h-8 w-8 mt-1">
-                    <AvatarFallback className="bg-blue-600 text-white">
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="flex gap-3 max-w-[90%]">
-                <Avatar className="h-8 w-8 mt-1">
-                  <AvatarImage src="/support-agent.png" alt="AI Assistant" />
-                  <AvatarFallback className="bg-teal-100 text-teal-700">AI</AvatarFallback>
-                </Avatar>
-                <div className="bg-gray-100 rounded-lg rounded-tl-none p-4 flex gap-2 items-center">
-                  <div className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" />
-                  <div className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: "0.2s" }} />
-                  <div className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: "0.4s" }} />
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  Sorry, there was an error processing your request. Please try again.
                 </div>
-              </div>
-            )}
+              )}
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                Sorry, there was an error processing your request. Please try again.
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} />
+            </div>
           </CardContent>
 
           {showScrollButton && (

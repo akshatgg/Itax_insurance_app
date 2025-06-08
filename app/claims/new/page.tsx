@@ -259,7 +259,7 @@ export default function NewClaimPage() {
   )
 }
 
-function Shield({ className }) {
+function Shield({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -276,15 +276,15 @@ function Shield({ className }) {
   )
 }
 
-function Avatar({ children }) {
+function Avatar({ children }: { children: React.ReactNode }) {
   return <div className="relative w-8 h-8 rounded-full overflow-hidden">{children}</div>
 }
 
-function AvatarImage({ src, alt }) {
+function AvatarImage({ src, alt }: { src?: string; alt?: string }) {
   return <img src={src || "/placeholder.svg"} alt={alt} className="w-full h-full object-cover" />
 }
 
-function AvatarFallback({ children }) {
+function AvatarFallback({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-center w-full h-full bg-muted text-muted-foreground text-sm font-medium">
       {children}
