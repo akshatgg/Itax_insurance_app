@@ -1,15 +1,103 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { getAuth, onAuthStateChanged, User } from "firebase/auth"
 import Link from "next/link"
+import { doc, getDoc, Timestamp } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 export default function DashboardPage() {
-  const [user] = useState({
-    name: "Rajesh Kumar",
-    email: "rajesh.kumar@email.com",
-    phone: "+91 9876543210",
-    memberSince: "2022",
-  })
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    memberSince: '',
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true); // New state for auth loading
+
+  // Helper function to convert Firestore timestamp to readable date
+  const formatTimestamp = (timestamp: any): string => {
+    if (!timestamp) return '';
+    
+    // If it's already a string, return it
+    if (typeof timestamp === 'string') return timestamp;
+    
+    // If it's a Firestore Timestamp object
+    if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp) {
+      const date = new Date(timestamp.seconds * 1000);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    
+    // If it's a Date object
+    if (timestamp instanceof Date) {
+      return timestamp.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    
+    return '';
+  };
+
+  useEffect(() => {
+    const auth = getAuth();
+    
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: User | null) => {
+      setAuthLoading(false); // Auth state is now determined
+      
+      if (currentUser) {
+        try {
+          setLoading(true);
+          const userRef = doc(db, 'users', currentUser.uid);
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+            setUser({
+              name: data?.displayName || currentUser.displayName || '',
+              email: data?.email || currentUser.email || '',
+              phone: data?.phone || '',
+              memberSince: formatTimestamp(data?.updatedAt || data?.createdAt),
+            });
+          } else {
+            // If no Firestore document, use Firebase Auth data
+            setUser({
+              name: currentUser.displayName || '',
+              email: currentUser.email || '',
+              phone: '',
+              memberSince: formatTimestamp(currentUser.metadata.creationTime),
+            });
+            console.warn('User profile not found in Firestore, using Firebase Auth data.');
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // User is not logged in
+        console.warn('No user is currently signed in.');
+        setUser({
+          name: '',
+          email: '',
+          phone: '',
+          memberSince: '',
+        });
+        setLoading(false);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   const [policies] = useState([
     {
@@ -55,7 +143,7 @@ export default function DashboardPage() {
     },
   ])
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "Active":
         return "text-green-600 bg-green-100"
@@ -68,7 +156,7 @@ export default function DashboardPage() {
     }
   }
 
-  const getClaimStatusColor = (status) => {
+  const getClaimStatusColor = (status: string) => {
     switch (status) {
       case "Approved":
         return "text-green-600 bg-green-100"
@@ -81,28 +169,26 @@ export default function DashboardPage() {
     }
   }
 
+  // Show loading spinner while auth is being determined
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      {/* <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl">🛡️</span>
-              <h1 className="text-2xl font-bold text-blue-600">SecureLife Insurance</h1>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user.name}</span>
-              <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Logout</button>
-            </div>
-          </div>
-        </div>
-      </header> */}
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-2">Welcome back, {user.name}!</h2>
+          <h2 className="text-2xl font-bold mb-2">
+            Welcome back, {loading ? 'Loading...' : (user.name || 'Guest')}!
+          </h2>
           <p className="text-blue-100">Manage your policies, track claims, and make payments all in one place.</p>
         </div>
 
@@ -139,7 +225,9 @@ export default function DashboardPage() {
             <div className="flex items-center">
               <div className="text-3xl mr-4">⭐</div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">{user.memberSince}</h3>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {loading ? 'Loading...' : (user.memberSince || '—')}
+                </h3>
                 <p className="text-gray-600">Member Since</p>
               </div>
             </div>
@@ -272,31 +360,40 @@ export default function DashboardPage() {
         {/* Profile Section */}
         <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-900 mb-6">Profile Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <p className="text-gray-900">{user.name}</p>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading profile...</p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <p className="text-gray-900">{user.email}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <p className="text-gray-900">{user.phone}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
-              <p className="text-gray-900">{user.memberSince}</p>
-            </div>
-          </div>
-          <div className="mt-6">
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              Edit Profile
-            </button>
-          </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <p className="text-gray-900">{user?.name || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <p className="text-gray-900">{user?.email || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <p className="text-gray-900">{user?.phone || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
+                  <p className="text-gray-900">{user?.memberSince || '—'}</p>
+                </div>
+              </div>
+              <div className="mt-6">
+                <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  Edit Profile
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   )
-}
+} 

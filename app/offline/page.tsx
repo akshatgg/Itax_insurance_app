@@ -173,9 +173,16 @@ export default function OfflinePage() {
     )
   }
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleString()
+const formatTime = (input: any) => {
+  if (input?.toDate) {
+    return input.toDate().toLocaleString() // Firestore Timestamp
   }
+  if (input instanceof Date) {
+    return input.toLocaleString()
+  }
+  return "Invalid date"
+}
+
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
